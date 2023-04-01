@@ -14,6 +14,7 @@ import {
   FilePicker,
   Tab,
 } from "../Components";
+import axios from "axios";
 const Customizer = () => {
   const snap = useSnapshot(state);
   const [file, setFile] = useState("");
@@ -30,11 +31,36 @@ const Customizer = () => {
       case "colorpicker":
         return <ColorPicker />;
       case "aipicker":
-        return <AIPicker />;
+        return (
+          <AIPicker
+            prompt={prompt}
+            setPrompt={setPrompt}
+            generatingImg={generatingImg}
+            handleSubmit={handleSubmit}
+          />
+        );
       case "filepicker":
         return <FilePicker file={file} setFile={setFile} readFile={readFile} />;
       default:
         return null;
+    }
+  };
+  const handleSubmit = async (type) => {
+    if (!prompt) return alert("Please enter a prompt");
+    try {
+      setGeneratingImg(true);
+      const response = await axios.get(
+        `https://lexica.art/api/v1/search?q=${prompt}`
+      );
+      handleDecals(type, response?.data?.images[0]?.src);
+      setActiveEditorTab("");
+      setGeneratingImg(false);
+      // call our backend to generate an ai image
+    } catch (error) {
+      alert(error);
+    } finally {
+      setGeneratingImg(false);
+      setActiveEditorTab("");
     }
   };
   const handleDecals = (type, result) => {
@@ -51,9 +77,11 @@ const Customizer = () => {
         break;
       case "stylishShirt":
         state.isFullTexture = !activeFilterTab[filterTab];
+        break;
       default:
         state.isLogoTexture = true;
         state.isFullTexture = false;
+        break;
     }
     // after setting the state, update the state
     setActiveFilterTab((prevState) => ({
@@ -110,9 +138,16 @@ const Customizer = () => {
                 tab={tab}
                 isActiveTab={activeFilterTab[tab.name]}
                 isFilterTab
-                handleClick={() => setActiveFilterTab(tab.name)}
+                handleClick={() => handleActiveFilterTab(tab.name)}
               />
             ))}
+             <button className='download-btn' onClick={downloadCanvasToImage}>
+              <img
+                src={download}
+                alt='download_image'
+                className='w-3/5 h-3/5 object-contain'
+              />
+            </button>
           </motion.div>
         </>
       )}

@@ -11,25 +11,17 @@ const CameraRig = ({children}) => {
     const isBreakpoint = window.innerWidth <= 1260;
     const isMobile = window.innerWidth <= 600;
     // set Initial postion of model
-    let targetPostion = [-0.4,0,2]
-    if(snap.intro){
-      if (isBreakpoint) {
-        targetPostion = [0,0,2.5]
-      }
-      if (isMobile) {
-        targetPostion = [0,0.2,2.5]
-      }
-    }else{
-      if (isBreakpoint) {
-        targetPostion = [0,0,2.5]
-      }
-      if (isMobile) {
-        targetPostion = [0,0,2]
-      }
+    let targetPosition = [-0.4, 0, 2];
+    if(snap.intro) {
+      if(isBreakpoint) targetPosition = [0, 0, 2];
+      if(isMobile) targetPosition = [0, 0.2, 2.5];
+    } else {
+      if(isMobile) targetPosition = [0, 0, 2.5]
+      else targetPosition = [0, 0, 2];
     }
 
     // set model camera position
-    easing.damp3(state.camera.position, targetPostion, 0.25, delta)
+    easing.damp3(state.camera.position, targetPosition, 0.25, delta)
     // set the model rotation smoothly
     easing.dampE(
       group.current.rotation,
